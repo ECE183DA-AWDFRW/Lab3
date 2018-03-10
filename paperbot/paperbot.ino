@@ -282,11 +282,11 @@ void setupRange(){
 }
 
 void readRange(int& range_x, int& range_y){
-    range_x = sensor_x.readRangeSingleMillimeters() + (uint8_t)29;
+    range_x = sensor_x.readRangeSingleMillimeters();
     if(sensor_x.timeoutOccurred()){
       range_x = -1;
     }
-    range_y = sensor_y.readRangeSingleMillimeters() + (uint8_t)13;
+    range_y = sensor_y.readRangeSingleMillimeters();
     if(sensor_y.timeoutOccurred()){
       range_y = -1;
     }    
@@ -457,7 +457,6 @@ void alignToAngle(int angle){
 void sendSensorData(uint8_t id){  
     int heading_degrees = getHeading(); 
     int angle = heading_degrees - box_a;
-    alignToAngle(box_a);
     
     // Read range sensors
     int range_x = -2;
@@ -467,12 +466,9 @@ void sendSensorData(uint8_t id){
     
     // Finally, send data
     char tx[20] = "";
-    sprintf(tx, "%d %d %d", angle, range_x, range_y);
+    sprintf(tx, "%d %d %d", range_y, range_x, angle);
     Serial.println(tx);
     wsSend(id, tx);
-  
-    delay(100);
-    alignToAngle(heading_degrees);
     delay(100);
 }
 
