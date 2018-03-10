@@ -8,6 +8,7 @@ function sensor_model = modelSensors(obj, cur_state)
     x_hat = cur_state(1);
     y_hat = cur_state(2);
     theta = cur_state(3);
+
     % I originally had the code do everything with respect to the heading,
     % so just converting the theta to heading is easier
     dimy = obj.dmy;
