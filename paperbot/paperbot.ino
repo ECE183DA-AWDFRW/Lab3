@@ -582,8 +582,8 @@ void webSocketEvent(uint8_t id, WStype_t type, uint8_t * payload, size_t length)
             DEBUG("  got text: ", (char *)payload);
 
             if (payload[0] == '$') {
-                int left_motor = 100*(payload[1]-0) + 10*(payload[2]-0) + payload[3]-0;
-                int right_motor = 100*(payload[5]-0) + 10*(payload[6]-0) + payload[7]-0;
+                int left_motor = 100*(payload[1]-'0') + 10*(payload[2]-'0') + payload[3]-'0';
+                int right_motor = 100*(payload[5]-'0') + 10*(payload[6]-'0') + payload[7]-'0';
                 drive(left_motor, right_motor); 
             }
             else if (payload[0] == '#') {
