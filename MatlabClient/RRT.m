@@ -7,15 +7,19 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
     tree.vertex(1).dist=0;
     tree.vertex(1).ind = 1; tree.vertex(1).indPrev = 0;
 
-    xArray=cur_x; yArray = cur_y;
-
     figure(1); hold on; grid on;
     plot(cur_x, cur_y, 'ko', 'MarkerSize',10, 'MarkerFaceColor','k');
     plot(goal_x, goal_y, 'go', 'MarkerSize',10, 'MarkerFaceColor','g');
     iter = 2;
     while( iter < sample_size)
-        xRand = box_X*rand;
-        yRand = box_Y*rand;
+        chance = rand;
+        if(chance > .1)
+            xRand = box_X*rand;
+            yRand = box_Y*rand;
+        else
+            xRand = goal_x;
+            yRand = goal_y;
+        end
         dist = Inf*ones(1,length(tree.vertex));
         
         %find closest point in current tree to connect it to
@@ -33,6 +37,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         y_delta = step_size*sin(angle);
         passed_counter = 1;
         passed_flag = false;
+        goal_flag = false;
         while( iter < sample_size && pdist([x_temp, y_temp; xRand, yRand], 'Euclidean') > .5)
             new_x = x_temp + x_delta;
             new_y = y_temp + y_delta;
@@ -54,6 +59,12 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
             pause(0);
             iter = iter + 1;
             passed_flag = true;
+            
+            if(pdist([new_x, new_y; goal_x, goal_y], 'Euclidean') < threshold)
+                goal_flag = true;
+                break;
+            end
+            
         end
         %If we never ended up adding a point, increase counter
         if(~passed_flag)
@@ -62,11 +73,16 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
                 break;
             end
         end
+        if(goal_flag)
+           break; 
+        end
     end
 
     if iter < sample_size
-        path.pos(1).x = goal_x; path.pos(1).y = goal_y;
-        path.pos(2).x = tree.vertex(end).x; path.pos(2).y = tree.vertex(end).y;
+        path.pos(1).x = goal_x; 
+        path.pos(1).y = goal_y;
+        path.pos(2).x = tree.vertex(end).x; 
+        path.pos(2).y = tree.vertex(end).y;
         pathIndex = tree.vertex(end).indPrev;
 
         j=0;
