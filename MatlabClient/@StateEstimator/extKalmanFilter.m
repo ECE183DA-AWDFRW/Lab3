@@ -1,18 +1,22 @@
-function next_state_KF = extKalmanFilter( obj, pwm, d_t, sen_meas )
-    sen_error = obj.estimateSensors(obj.cur_state)-sen_meas;
+function next_state_KF = extKalmanFilter( obj, dir, d_t, sen_meas )
+    est = obj.estimateSensors(obj.cur_state);
+    sen_error = est - sen_meas;
+    if ((360 + est(3) - sen_meas(3)) < abs(sen_error(3)))
+        sen_error(3) = 360 + est(3) - sen_meas(3);
+    elseif ((360 + sen_meas(3) - est(3)) < abs(sen_error(3)))
+        sen_error(3) = 360 + sen_meas(3) - est(3);   
+    end
     
     %These were found experimentally
-    sen_cov = [3.9629, -0.6261 -0.8943; -0.6261, 5.5037 0.8433; -0.8943, 0.8433, 5.7588];
-    process_cov = [5, 0, 0; 0, 5, 0; 0, 0, 3];
+    sen_cov = [2.9629, -0.4261 -0.6943; -0.4261, 2.5037 0.5433; -0.6943, 0.5433, 3.7588];
+    process_cov = [.5, 0, 0; 0, .5 0; 0, 0, 1];
     
     disp('Finding possible state');
     %Find Possible Next state (x_k|k-1)
-    poss_state = obj.findNextState(pwm, obj.cur_state, d_t);
+    poss_state = obj.findNextState(dir, obj.cur_state, d_t);
     jacobian_H = obj.createJacobianH(poss_state);
-    jacobian_F = obj.createJacobianF(pwm, obj.cur_state, d_t);
+    jacobian_F = obj.createJacobianF(dir, obj.cur_state, d_t);
     disp(poss_state);
-    disp(jacobian_F);
-    disp(jacobian_H);
     
     %Update Covariance
     disp('Updating Covariance');
@@ -27,6 +31,11 @@ function next_state_KF = extKalmanFilter( obj, pwm, d_t, sen_meas )
     %Take into account Kalman Filter things
     disp('Updating states with Kalman Gain');
     next_state_KF = poss_state + G_k*sen_error;
+    if(next_state_KF(3) < 0)
+       next_state_KF(3) = next_state_KF(3) + 360;
+    elseif(next_state_KF(3) > 360)
+       next_state_KF(3) = next_state_KF(3) - 360;
+    end
     obj.covariance = (eye(3) - G_k*sen_cov)*obj.covariance;  
 end
 

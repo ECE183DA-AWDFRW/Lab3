@@ -23,7 +23,7 @@ classdef StateEstimator < handle
             obj.initial_state = initial_state;
             obj.index = 2;
             obj.state_array(:,1) = initial_state;
-            obj.covariance = eye(3);
+            obj.covariance = eye(3)./10;
             obj.cur_state = initial_state;
         end
        
