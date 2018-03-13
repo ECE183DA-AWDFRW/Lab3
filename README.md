@@ -40,3 +40,7 @@ The PaperBotClient is the overarching class that contains both the State Estimat
 The State Estimator takes in the current state and the control inputs to predict the estimated state. It also contains an array of all previous estimated states.
 
 The Websocket functions allow communication with the Arduino. Most importantly, the onTextMessage() triggers the state estimation process by calling state_estimator.updateState(), which is a wrapper function that triggers the state estimation.
+
+**Video Demo**
+
+https://www.youtube.com/watch?v=ab8WtmRo-0U
