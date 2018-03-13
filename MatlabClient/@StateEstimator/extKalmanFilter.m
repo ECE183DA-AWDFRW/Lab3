@@ -8,7 +8,7 @@ function next_state_KF = extKalmanFilter( obj, dir, d_t, sen_meas )
     end
     
     %These were found experimentally
-    sen_cov = [2.9629, -0.4261 -0.6943; -0.4261, 2.5037 0.5433; -0.6943, 0.5433, 3.7588];
+    sen_cov = [2.9629, -0.4261, -0.6943; -0.4261, 2.5037, 0.5433; -0.6943, 0.5433, 3.7588];
     process_cov = [25, 0, 0; 0, 25 0; 0, 0, 25]; %Values are in mm for rows 1 and 2, in degrees for row 3.
     
     disp('Finding possible state');
