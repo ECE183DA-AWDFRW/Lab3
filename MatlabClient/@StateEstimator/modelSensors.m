@@ -1,18 +1,21 @@
 function sensor_model = modelSensors(obj, cur_state)
+    %Inputs: cur_state -- current state in form of [x; y; theta]
+    %Outputs: sensor reading estimates as [forward sensor, side sensor, magnetometer]
+    
     % sen_f is forward sensor, sen_s is side sensor
     % x_hat/y_hat are bot positions, here bottom left-hand corner of box is
     % (0,0)
     % theta is angle from box x-axis
     % dimx/dimy are dimensions of the box
-    % Obvious special cases 
+
     x_hat = cur_state(1);
     y_hat = cur_state(2);
     theta = cur_state(3);
 
-    % I originally had the code do everything with respect to the heading,
-    % so just converting the theta to heading is easier
     dimy = obj.dmy;
     dimx = obj.dmx;
+
+    % Obvious special cases 
     if theta == 90 
         sen_f = dimy - y_hat;
         sen_s = dimx - x_hat;

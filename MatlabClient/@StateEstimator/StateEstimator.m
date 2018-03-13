@@ -27,13 +27,13 @@ classdef StateEstimator < handle
             obj.cur_state = initial_state;
         end
        
-        jacobian_H = createJacobianH(obj, cur_state)
-        jacobian_F = createJacobianF(obj, pwm, cur_state, d_t)
-        sensor_estimate = estimateSensors(obj, cur_state)
-        sensor_model = modelSensors(obj, cur_state)
-        next_state = findNextState(obj, pwm, cur_state, d_t )
-        next_state_KF = extKalmanFilter( obj, pwm, d_t, sen_meas )
-        updateState(obj, pwm, d_t, sen_meas)
+        jacobian_H = createJacobianH(obj, cur_state)                    %create H jacobian (sensor measurement estimator)
+        jacobian_F = createJacobianF(obj, pwm, cur_state, d_t)          %create F jacobian (next state estimator)
+        sensor_estimate = estimateSensors(obj, cur_state)               %estimateSensors  (estimate the sensor readings from current state)
+        sensor_model = modelSensors(obj, cur_state)                     %helper function for estimateSensors
+        next_state = findNextState(obj, pwm, cur_state, d_t )           %the F function (next state estimator)
+        next_state_KF = extKalmanFilter( obj, pwm, d_t, sen_meas )      %The entire Kalman Filter
+        updateState(obj, pwm, d_t, sen_meas)                            %Wrapper function for the Kalman Filter. Sets current state.
         
     end
     

@@ -1,4 +1,9 @@
 function jacobian_F = createJacobianF(obj, dir, cur_state, d_t)
+%Inputs: cur_state -- current state as [x; y; theta]
+%        dir -- direction of movement
+%		 d_t -- duration of movement
+%Outputs: jacobian_H -- jacobian of pre-filtered state estimator at cur_state
+
 %	Create the jacobian for the f function
 %    state_b = obj.findNextState(dir, cur_state, d_t);
 %    state_dx2 = obj.findNextState(dir, cur_state + [1; 0; 0], d_t);

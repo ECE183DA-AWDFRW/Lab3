@@ -1,4 +1,6 @@
 function jacobian_H = createJacobianH(obj, cur_state)
+%Inputs: cur_state -- current state as [x; y; theta]
+%Outputs: jacobian_H -- jacobian of sensor estimator at cur_state
     %We estimate the jacobian derivatives using our model.
     %Essentially, we take the estimate and two very close points, and find
     %the slope.

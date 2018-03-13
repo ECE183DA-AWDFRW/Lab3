@@ -1,4 +1,10 @@
 function next_state_KF = extKalmanFilter( obj, dir, d_t, sen_meas )
+%Inputs: dir -- direction of movement
+%        d_t -- duration of movement
+%        sen_meas -- sensor measurements from Paper Bot
+%Outputs: next_state_KF -- The estimated next state, after Kalman Filter
+
+    %estimate the sensors
     est = obj.estimateSensors(obj.cur_state);
     sen_error = est - sen_meas;
     if ((360 + est(3) - sen_meas(3)) < abs(sen_error(3)))
@@ -7,9 +13,9 @@ function next_state_KF = extKalmanFilter( obj, dir, d_t, sen_meas )
         sen_error(3) = 360 + sen_meas(3) - est(3);   
     end
     
-    %These were found experimentally
-    sen_cov = [2.9629, -0.4261, -0.6943; -0.4261, 2.5037, 0.5433; -0.6943, 0.5433, 3.7588];
-    process_cov = [25, 0, 0; 0, 25 0; 0, 0, 25]; %Values are in mm for rows 1 and 2, in degrees for row 3.
+    %These covariance matrices were found experimentally
+    sen_cov = [2.9629, -0.4261 -0.6943; -0.4261, 2.5037 0.5433; -0.6943, 0.5433, 3.7588];
+    process_cov = [5, 0, 0; 0, 4, 0; 0, 0, 3];
     
     disp('Finding possible state');
     %Find Possible Next state (x_k|k-1)

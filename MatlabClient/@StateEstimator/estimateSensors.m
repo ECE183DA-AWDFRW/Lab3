@@ -1,7 +1,9 @@
-%These were discovered experimentally
-%We modelled the noise as an offset + gaussian random number
 function sensor_estimate = estimateSensors(obj, cur_state)
-%model the sensors, and add offsets
+%Inputs: cur_state -- current state as [x; y; theta]
+%Outputs: sensor_estimate -- sensor estimate values
+
+%We modelled the noise as an offset + gaussian random number
+%These were discovered experimentally
     sen_offset = [60; 50; 0];
     %sen_noise = normrnd([0; 0; 0],[2.18; 2.18; 3]);
     
