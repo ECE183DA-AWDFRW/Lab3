@@ -1,5 +1,5 @@
 
-function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goal_y, step_size, threshold)
+function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goal_y, objs, step_size, threshold)
     tree.vertex(1).x = cur_x;
     tree.vertex(1).y = cur_y;
     tree.vertex(1).xPrev = cur_x;
@@ -39,9 +39,17 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         passed_flag = false;
         goal_flag = false;
         while( iter < sample_size && pdist([x_temp, y_temp; xRand, yRand], 'Euclidean') > .5)
+            collision = false;
             new_x = x_temp + x_delta;
             new_y = y_temp + y_delta;
-            if(new_x < 15 && new_x > 10 && new_y < 20 && new_y > 0)
+            [r,c]=size(objs);
+            for j = 1:r
+                if(new_x > objs(j,1) && new_x < objs(j,2) && new_y > objs(j,3) && new_y < objs(j,4))
+                   collision = true;
+                    break;
+                end
+            end
+            if (collision == true)
                 break;
             end
             tree.vertex(iter).x = x_temp + x_delta; 
@@ -62,7 +70,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
             
             if(pdist([new_x, new_y; goal_x, goal_y], 'Euclidean') < threshold)
                 goal_flag = true;
-                break;
+                %break;
             end
             
         end
@@ -97,9 +105,65 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         end
 
         path.pos(end+1).x = cur_x; path.pos(end).y = cur_y;
-
+        
+        node1_x = path.pos(1).x;
+        node1_y = path.pos(1).y;
+        node1_pos = 1;
+        j=2;
+        while 1
+            node2_x = path.pos(j).x;
+            node2_y = path.pos(j).y;
+            %get max/min x values to check if obstacle is in between points
+            if (node1_x > node2_x)
+                xmax = node1_x;
+                xmin = node2_x;
+            else
+                xmax = node2_x;
+                xmin = node1_x;
+            end
+            %find slope of line
+            slope = (node2_y - node1_y)/(node2_x - node1_x);
+            %go through obstacles and check for intersection
+            intersect = false;
+            for i = 1:r
+                %check if obstacle xmin is inbetween points
+                if (objs(i,1)>=xmin && objs(i,1)<=xmax)
+                    %if intersect, change points
+                    y = slope*(objs(i,1)-node1_x)+node1_y;
+                    if (y >= objs(i,3) && y <= objs(i,4))
+                        node1_x = path.pos(j-1).x;
+                        node1_y = path.pos(j-1).y;
+                        node1_pos = j-1;
+                        intersect = true;
+                        j = j + 1;
+                        break;
+                    end
+                end
+                %check if obstacle xmax is inbetween points
+                if (objs(i,2)>=xmin && objs(i,2)<=xmax)
+                    %if intersect, change points
+                    y = slope*(objs(i,2)-node1_x)+node1_y;
+                    if (y >= objs(i,3) && y <= objs(i,4))
+                        node1_x = path.pos(j-1).x;
+                        node1_y = path.pos(j-1).y;
+                        node1_pos = j-1;
+                        intersect = true;
+                        j = j + 1;
+                        break;
+                    end
+                end
+            end
+            if (intersect == false)
+                %no intersection, remove point
+                path.pos(node1_pos+1)=[];
+            end
+            if j > length(path.pos)
+                break;
+            end
+        end
+        
         for j = 2:length(path.pos)
-            plot([path.pos(j).x; path.pos(j-1).x;], [path.pos(j).y; path.pos(j-1).y], 'b', 'Linewidth', 3);
+            plot([path.pos(j).x; path.pos(j-1).x;], [path.pos(j).y; path.pos(j-1).y], 'b', 'Linewidth', 1);
         %     plot([tree.vertex(i).x; tree.vertex(ind).x],[tree.vertex(i).y; tree.vertex(ind).y], 'r');
         %     pause(0);
         end
