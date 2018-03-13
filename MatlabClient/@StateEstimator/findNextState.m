@@ -3,9 +3,9 @@ function next_state = findNextState(obj, dir, cur_state, d_t )
 %Since we're doing straight lines we can simplify it quite a bit
 %    c_t = 90;
 %    d_k = 90 - pwm;
-%    x = cur_state(1) + (2.169./pwm.*c_t + 196.988).*d_t.*cosd(cur_state(3));
-%    y = cur_state(2) + (2.169./pwm.*c_t + 196.988).*d_t.*sind(cur_state(3));
-%    theta = cur_state(3) + (-1.892./pwm.*d_k + 164.286).*d_t;
+%    x = cur_state(1) + (2.0485./pwm.*c_k + 184.09).*d_t.*cosd(cur_state(3));
+%    y = cur_state(2) + (2.0485./pwm.*c_k + 184.09).*d_t.*sind(cur_state(3));
+%    theta = cur_state(3) + (-1.7956./pwm.*d_k + 157.07).*d_t;
 
     if(strcmp(dir,'forward')) 
         v = 145; %velocity found experimentally to be 145 mm/s
