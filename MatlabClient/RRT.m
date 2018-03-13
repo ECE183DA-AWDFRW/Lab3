@@ -1,5 +1,6 @@
 
 function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goal_y, objs, step_size, threshold)
+    %Initialize tree
     tree.vertex(1).x = cur_x;
     tree.vertex(1).y = cur_y;
     tree.vertex(1).xPrev = cur_x;
@@ -12,6 +13,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
     plot(goal_x, goal_y, 'go', 'MarkerSize',10, 'MarkerFaceColor','g');
     iter = 2;
     while( iter < sample_size)
+        %Give slight probability to go straight to goal(can speed up/slightly optimize path)
         chance = rand;
         if(chance > .1)
             xRand = box_X*rand;
@@ -52,6 +54,8 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
             if (collision == true)
                 break;
             end
+
+            %Actually add the new point
             tree.vertex(iter).x = x_temp + x_delta; 
             tree.vertex(iter).y = y_temp + y_delta;
             tree.vertex(iter).dist = step_size;
@@ -68,13 +72,15 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
             iter = iter + 1;
             passed_flag = true;
             
+            %We found the goal point, so stop
             if(pdist([new_x, new_y; goal_x, goal_y], 'Euclidean') < threshold)
                 goal_flag = true;
-                %break;
+                break;
             end
             
         end
-        %If we never ended up adding a point, increase counter
+
+        %If we never ended up adding a point, increase counter. This means map is too saturated with points and we should try again.
         if(~passed_flag)
             passed_counter = passed_counter + 1;
             if(passed_counter > 100)
@@ -86,7 +92,9 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         end
     end
 
+    %We found a path. Time to smooth it.
     if iter < sample_size
+        %Initialize path
         path.pos(1).x = goal_x; 
         path.pos(1).y = goal_y;
         path.pos(2).x = tree.vertex(end).x; 
@@ -94,6 +102,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         pathIndex = tree.vertex(end).indPrev;
 
         j=0;
+        %Backtrack along path to get complete path. We saved the previous index for this purpose.
         while 1
             path.pos(j+3).x = tree.vertex(pathIndex).x;
             path.pos(j+3).y = tree.vertex(pathIndex).y;
@@ -110,6 +119,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
         node1_y = path.pos(1).y;
         node1_pos = 1;
         j=2;
+        %With the complete path, time to start cutting out extra points
         while 1
             node2_x = path.pos(j).x;
             node2_y = path.pos(j).y;
@@ -121,6 +131,7 @@ function [tree, path] = RRT(sample_size, box_X, box_Y, cur_x, cur_y, goal_x, goa
                 xmax = node2_x;
                 xmin = node1_x;
             end
+            %Now, find line between points to check for obstacles
             %find slope of line
             slope = (node2_y - node1_y)/(node2_x - node1_x);
             %go through obstacles and check for intersection
