@@ -28,7 +28,7 @@ function next_state_KF = extKalmanFilter( obj, dir, d_t, sen_meas )
     G_k = obj.covariance*jacobian_H'*(inv(jacobian_H*obj.covariance*jacobian_H'+sen_cov));
     disp(G_k);
         
-    %Take into account Kalman Filter things
+    %Take into account Kalman Filter Gain
     disp('Updating states with Kalman Gain');
     next_state_KF = poss_state + G_k*sen_error;
     if(next_state_KF(3) < 0)

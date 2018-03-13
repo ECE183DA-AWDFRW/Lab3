@@ -1,23 +1,27 @@
 classdef PaperbotClient < WebSocketClient
-    %CLIENT Summary of this class goes here
-    %   Detailed explanation goes here
+    % The PaperbotClient code
     
     properties
-        sensor_data;
-        state_estimator;
-        d_t = 0;  %in milliseconds
-        dir = 'stop';
-        path;
+        sensor_data;                    %the incoming sensor data from Paper Bot
+        state_estimator;                %State Estimator object
+        d_t = 0;  %in milliseconds      %Length we are going to drive
+        dir = 'stop';                   %Direction we are driving in
+        path;                           %Path to goal
 
     end
     
     methods
         function obj = PaperbotClient(x_dm, y_dm, a_offset, initial_state, varargin)
-            %Constructor
+            %x_dm, y_dm are dimensions of the box
+            %a_offset is offset from the box north to magnetic north. Unused for this lab
+            %initial_state is the initial state of form [x, y, theta]
+            %varargin is websocket address. Usually 'ws://192.168.4.1:81'
+
             obj@WebSocketClient(varargin{:});
             obj.state_estimator = StateEstimator(x_dm, y_dm, a_offset, initial_state);
         end
-                %Send PWM values to the paperbot
+
+        %Send PWM values to the paperbot
         function drive(obj, pwm1, pwm2, dir)
             obj.dir = dir;
             s = strcat('$', sprintf('%03d',pwm1));
@@ -28,6 +32,7 @@ classdef PaperbotClient < WebSocketClient
             
         end
         
+        %Run RRT Algorithm to find the path. The path will be an vector of xy coordinates.
         function getPath(obj, goal_x, goal_y)
             objs = [150 200 0 230];
             [~, path1] = RRT(10000, obj.state_estimator.dmx, obj.state_estimator.dmy, ...
@@ -39,7 +44,7 @@ classdef PaperbotClient < WebSocketClient
         end
         
         
-        
+        %From the path, drive along it using the specified points.
         function drivePath(obj)
             i = length(obj.path.pos)-1;
             while i > 0
@@ -61,24 +66,29 @@ classdef PaperbotClient < WebSocketClient
                         obj.dir = 'right';
                         
                     else
+                        %goal is to the left
                         turn_angle = goal_theta - theta;
                         obj.dir = 'left';
                     end
                     
                 elseif(goal_theta < theta)
                     if(theta - goal_theta > 180)
+                        %goal is actually to the left
                         turn_angle = 360 - theta + goal_theta;
                         obj.dir = 'left';
                     else
+                        %goal is to the right
                         turn_angle = theta - goal_theta;
                         obj.dir = 'right';
                     end
                     
                 elseif(goal_theta == theta)
+                    %already aligned
                     turn_angle = 0;
                     obj.dir = 'stop';
                 end
                 
+                %the angular velocity was experimentally found to be 150 degrees/s.
                 if(strcmp(obj.dir, 'right'))
                     obj.d_t = turn_angle/150;
                     disp(obj.d_t);
@@ -89,8 +99,8 @@ classdef PaperbotClient < WebSocketClient
                     obj.drive(0, 0, 'left');
                 end
                 pause;
-                %Drive Forward
-                
+
+                %Drive Forward. Velocity found to be 145 mm/s.
                 d = pdist([goal_x, goal_y; x,y]);
                 obj.d_t = d/145;
                 obj.drive(180, 0, 'forward');

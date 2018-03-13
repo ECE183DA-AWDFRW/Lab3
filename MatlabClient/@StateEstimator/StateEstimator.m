@@ -1,17 +1,17 @@
 classdef StateEstimator < handle
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
+    %The state estimator part of the paperbot. 
+    %Responsible for keeping track of previous states so far and estimating the next state
     
     properties
         dmx     %x dimension of the box
         dmy     %y dimension of the box
-        a_offset %angle of the box from magnetic north
+        a_offset %angle of the box from magnetic north. Not used
         
         initial_state %initial state of the paperbot
         state_array   %stores previous estimated states of the paperbot
         cur_state     %the current estimated state
         covariance    %our covariance matrix
-        index             %index of state array
+        index         %index of state array
         
     end
     

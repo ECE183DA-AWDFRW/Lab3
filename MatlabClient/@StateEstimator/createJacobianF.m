@@ -1,4 +1,5 @@
 function jacobian_F = createJacobianF(obj, dir, cur_state, d_t)
+%	Create the jacobian for the f function
 %    state_b = obj.findNextState(dir, cur_state, d_t);
 %    state_dx2 = obj.findNextState(dir, cur_state + [1; 0; 0], d_t);
 %    state_dy2 = obj.findNextState(dir, cur_state + [0; 1; 0], d_t);
@@ -11,6 +12,7 @@ function jacobian_F = createJacobianF(obj, dir, cur_state, d_t)
 %    state_da = state_da2 - state_b;
     
 %    jacobian_F = [state_dx, state_dy, state_da];
+
     jacobian_F = [1, 0, 0; 0, 1, 0; 0, 0, 1];
 
 end
